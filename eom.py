@@ -13,13 +13,12 @@ class Obj():
         self.v = 0
         self.a = 0
         self.F = 0
-        self.Fext = 0
 
         self.t = 0
         self.dt = 0.001
 
         self.m = 0.1
-        self.b = 0.1
+        self.B = 0.3
 
         self.d_array = []
         self.v_array = []
@@ -34,8 +33,6 @@ class Obj():
 
     def apply_force(self, F):
         self.F = F
-        self.a = self.F / self.m
-        # self.m * self.a + self.b * self.v - self.Fext
 
     def update(self, dt = 0.001):
 
@@ -50,9 +47,9 @@ class Obj():
         return self.eom()
 
     def eom(self):
+        self.a = (self.F - self.B * self.v) / self.m
         self.v = self.v0 + self.a * self.dt
         self.d = self.d0 + (0.5 * (self.v0 + self.v) * self.dt)
-        # self.d = self.d0 + self.v0 * self.t + 0.4 * self.a * math.pow(self.t, 2)
         return self.d, self.v
 
     def set_mass(self, m):
