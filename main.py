@@ -1,12 +1,12 @@
 from eom import Obj
 from collision import Collision
-import numpy as np
+import matplotlib.pyplot as plt
 
 
 def run():
     my_obj = Obj()
     collision_obj = Collision()
-    my_obj.apply_force(10)
+    my_obj.apply_force(500)
     my_obj.store_trajectory(True)
     dt = 0.001
     for i in range(1,500):

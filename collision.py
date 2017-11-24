@@ -8,6 +8,7 @@ class Collision():
         self.K = 100
         self.epsilon = 0.001
         self.ForceCap = 50
+        self.f_array = []
         pass
 
     def force_cap(self):
@@ -21,3 +22,9 @@ class Collision():
             return self.F
         else:
             return 0
+
+    def record_force(self):
+        self.f_array.append(self.F)
+        pass
+
+
