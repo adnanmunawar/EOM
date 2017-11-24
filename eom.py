@@ -31,13 +31,13 @@ class Obj():
     def eom(self):
         self.v = self.v0 + self.a * self.t
         self.d = self.d0 + 0.5 * (self.v0 + self.v) * self.t
-        return self.d
+        return self.d, self.v
 
     def apply_force(self, F):
         self.F = F
         self.a = self.F / self.m
 
-    def update(self, dt):
+    def update(self, dt = 0.001):
         if self._m_store_trajectory:
             self.trajectory()
 
@@ -45,11 +45,10 @@ class Obj():
         self.v0 = self.v
         self.a0 = self.a
         self.F0 = self.F
-
         self.dt = dt
+
         self.t = self.t + dt
-        d = self.eom()
-        return d
+        return self.eom()
 
     def set_mass(self, m):
         self.m = m
@@ -80,22 +79,3 @@ class Obj():
         plt.grid('on')
         plt.show()
 
-
-
-def run():
-
-    my_obj = Obj()
-    my_obj.apply_force(0.5)
-    my_obj.store_trajectory(True)
-    dt = 0.001
-    for i in range(1,500):
-        d = my_obj.update(dt)
-        my_obj.apply_force(0)
-        print 'Iteration number ', i, ' d =', d
-
-    print my_obj.t_array
-    my_obj.plot_trajectory('Acceleration')
-
-
-if __name__ == '__main__':
-    run()
