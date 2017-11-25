@@ -11,6 +11,9 @@ class MotionState():
         self.position = []
         self.velocity = []
         self.time = []
+        self.pos_array = []
+        self.vel_array = []
+        self.t_array = []
 
     def get_position(self):
         return self.position
@@ -21,17 +24,27 @@ class MotionState():
     def set_velocity(self, v,t):
         self.velocity = v
         self.time = t
+        self.vel_array.append(v)
+        self.t_array.append(t)
 
     def set_position(self, p,t):
         self.position = p
-        self.time = t
+        self.pos_array.append(p)
+
+    def plot_motion(self):
+        pos_axes, = plt.plot(self.t_array, self.pos_array, label='Position')
+        vel_axes, = plt.plot(self.t_array, self.vel_array, label='Velocity')
+        plt.grid()
+        plt.legend([pos_axes, vel_axes], ['Position', 'Velocity'])
+        plt.show()
 
     def print_motion(self):
         print 'P = ', self.position, 'V = ', self.velocity, 'at time:', self.time
 
-Fmax = 2
+Fmax = 1
 m = 0.1
 B = 0.1
+
 
 def my_ode(y, t, ft, Fext, motionObj, sleet_time):
     F = np.interp(t, ft, Fext)
@@ -40,14 +53,14 @@ def my_ode(y, t, ft, Fext, motionObj, sleet_time):
     dy = [0, 0]
     dy[0] = y[1]
     dy[1] = (F - B * y[1])/m
-    SysTime.sleep(sleet_time)
+    # SysTime.sleep(sleet_time)
     return dy
 
 
 def ode_loop(motionObj):
     t0 = 0.0
-    dt = 1.0
-    total_time = 50.0
+    dt = 20.0
+    total_time = 100.0
     tf = t0 + dt
     itrs = 50
     f_res = 10
@@ -56,11 +69,11 @@ def ode_loop(motionObj):
     ft = np.linspace(t0, tf, f_res)
     Fext = np.zeros(f_res)
     Fext[0] = Fmax
-    Fext[7] = -Fmax
+    Fext[5] = -Fmax
     sleep_time = (tspan[1] - tspan[0]) / itrs
 
     while tf <= total_time:
-        print 'Current time span t0: ', t0, ' to tf: ', tf
+        # print 'Current time span t0: ', t0, ' to tf: ', tf
         y = odeint(my_ode, y0, tspan, args=(ft, Fext, motionObj, sleep_time))
         t0 = tf
         tf += dt
@@ -69,13 +82,20 @@ def ode_loop(motionObj):
         sleep_time = (tspan[1] - tspan[0]) / itrs
         y0 = y[-1]
 
+    motionObj.plot_motion()
+
 
 def main():
     motionObj = MotionState()
-    t = threading.Thread(target = ode_loop, args=(motionObj,))
-    t.start()
+    ode_loop(motionObj)
+    # t = threading.Thread(target = ode_loop, args=(motionObj,))
+    # t.start()
 
-
+    # cnt = 0
+    # while cnt < 100:
+    #     motionObj.print_motion()
+    #     cnt += 1
+    #     SysTime.sleep(0.1)
 
 if __name__ == '__main__':
     main()
