@@ -8,7 +8,7 @@ class ForceArray():
     def __init__(self):
         self.ft = np.linspace(0,5,50)
         self.f_array = np.zeros([1, 50])
-        self.f_array[0, 0] = 10
+        self.f_array[0, 0] = 2
 
 
 def run():
