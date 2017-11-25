@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 import numpy as np
+from collision import Collision
 import math
 
 
@@ -29,6 +30,8 @@ class Obj():
 
         self._m_store_trajectory = False
         self._f_array_set = False
+        self._compute_collision = False
+        self.Col_obj = Collision()
 
     def dynamics(self):
         pass
@@ -40,8 +43,16 @@ class Obj():
         self.fext_array = force_array
         self._f_array_set = True
 
+    def set_collision_check(self, bool):
+        self._compute_collision = bool
+
     def update_force(self):
-        self.F = np.interp(self.t, self.fext_array.ft, self.fext_array.f_array[0])
+        if self._f_array_set:
+            Fext1 = np.interp(self.t, self.fext_array.ft, self.fext_array.f_array[0])
+        if self._compute_collision:
+            Fext2 = self.Col_obj.compute_collision(self.d)
+
+        self.F = Fext1 - Fext2
 
     def update(self, dt = 0.001):
 
@@ -51,8 +62,7 @@ class Obj():
         if self._m_store_trajectory:
             self.trajectory()
 
-        if self._f_array_set:
-            self.update_force()
+        self.update_force()
 
         self.dt = dt
         self.t += self.dt
