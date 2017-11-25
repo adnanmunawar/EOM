@@ -18,21 +18,30 @@ class Obj():
         self.dt = 0.001
 
         self.m = 0.1
-        self.B = 0.3
+        self.B = 0.1
 
         self.d_array = []
         self.v_array = []
         self.a_array = []
         self.f_array = []
         self.t_array = []
+        self.fext_array = []
 
         self._m_store_trajectory = False
+        self._f_array_set = False
 
     def dynamics(self):
         pass
 
     def apply_force(self, F):
         self.F = F
+
+    def set_force_array(self, force_array):
+        self.fext_array = force_array
+        self._f_array_set = True
+
+    def update_force(self):
+        self.F = np.interp(self.t, self.fext_array.ft, self.fext_array.f_array[0])
 
     def update(self, dt = 0.001):
 
@@ -41,6 +50,9 @@ class Obj():
 
         if self._m_store_trajectory:
             self.trajectory()
+
+        if self._f_array_set:
+            self.update_force()
 
         self.dt = dt
         self.t += self.dt
