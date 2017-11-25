@@ -2,12 +2,8 @@ from scipy.integrate import odeint
 import numpy as np
 import matplotlib.pyplot as plt
 import threading
+import time as SysTime
 
-Fmax = 2
-m = 0.1
-B = 0.1
-time = 50
-f_res = 10
 
 
 class MotionState():
@@ -33,8 +29,11 @@ class MotionState():
     def print_motion(self):
         print 'P = ', self.position, 'V = ', self.velocity, 'at time:', self.time
 
+Fmax = 2
+m = 0.1
+B = 0.1
 
-def my_ode(y, t, ft, Fext, motionObj):
+def my_ode(y, t, ft, Fext, motionObj, sleet_time):
     F = np.interp(t, ft, Fext)
     motionObj.set_position(y[0],t)
     motionObj.set_velocity(y[1],t)
@@ -45,20 +44,32 @@ def my_ode(y, t, ft, Fext, motionObj):
 
 
 def main():
+    t0 = 0.0
+    dt = 1.0
+    total_time = 5.0
+    tf = t0 + dt
+    itrs = 50
+    f_res = 10
+
     motionObj = MotionState()
     y0 = [0, 0]
-    tspan = np.linspace(0, time, 50)
-    ft = np.linspace(0, time, f_res)
+    tspan = np.linspace(t0, tf, itrs)
+    ft = np.linspace(t0, tf, f_res)
     Fext = np.zeros(f_res)
     Fext[0] = Fmax
     Fext[7] = -Fmax
-    y = odeint(my_ode, y0, tspan, args=(ft, Fext, motionObj))
-    vel_plt, = plt.plot(y[:,1], '-r')
-    plt.xlabel('Time')
-    pos_plt, = plt.plot(y[:,0], '-g')
-    plt.legend([pos_plt, vel_plt], ['Position', 'Velocity'])
-    plt.grid()
-    plt.show()
+    sleep_time = (tspan[1] - tspan[0]) / itrs
+
+    while tf <= total_time:
+        print 'Tspan: ', tspan[0], tspan[-1]
+        print 'Sleep for: ', sleep_time
+        y = odeint(my_ode, y0, tspan, args=(ft, Fext, motionObj, sleep_time))
+        t0 = tf
+        tf += dt
+        tspan = np.linspace(t0, tf, itrs)
+        ft = np.linspace(t0, tf, f_res)
+        sleep_time = (tspan[1] - tspan[0]) / itrs
+        y0 = y[-1]
 
 
 if __name__ == '__main__':
