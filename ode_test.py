@@ -40,13 +40,14 @@ def my_ode(y, t, ft, Fext, motionObj, sleet_time):
     dy = [0, 0]
     dy[0] = y[1]
     dy[1] = (F - B * y[1])/m
+    SysTime.sleep(sleet_time)
     return dy
 
 
 def main():
     t0 = 0.0
     dt = 1.0
-    total_time = 5.0
+    total_time = 50.0
     tf = t0 + dt
     itrs = 50
     f_res = 10
@@ -61,8 +62,6 @@ def main():
     sleep_time = (tspan[1] - tspan[0]) / itrs
 
     while tf <= total_time:
-        print 'Tspan: ', tspan[0], tspan[-1]
-        print 'Sleep for: ', sleep_time
         y = odeint(my_ode, y0, tspan, args=(ft, Fext, motionObj, sleep_time))
         t0 = tf
         tf += dt
