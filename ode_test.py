@@ -44,15 +44,13 @@ def my_ode(y, t, ft, Fext, motionObj, sleet_time):
     return dy
 
 
-def main():
+def ode_loop(motionObj):
     t0 = 0.0
     dt = 1.0
     total_time = 50.0
     tf = t0 + dt
     itrs = 50
     f_res = 10
-
-    motionObj = MotionState()
     y0 = [0, 0]
     tspan = np.linspace(t0, tf, itrs)
     ft = np.linspace(t0, tf, f_res)
@@ -69,6 +67,12 @@ def main():
         ft = np.linspace(t0, tf, f_res)
         sleep_time = (tspan[1] - tspan[0]) / itrs
         y0 = y[-1]
+
+
+def main():
+    motionObj = MotionState()
+    ode_loop(motionObj)
+
 
 
 if __name__ == '__main__':
