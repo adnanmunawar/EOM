@@ -60,6 +60,7 @@ def ode_loop(motionObj):
     sleep_time = (tspan[1] - tspan[0]) / itrs
 
     while tf <= total_time:
+        print 'Current time span t0: ', t0, ' to tf: ', tf
         y = odeint(my_ode, y0, tspan, args=(ft, Fext, motionObj, sleep_time))
         t0 = tf
         tf += dt
@@ -71,7 +72,8 @@ def ode_loop(motionObj):
 
 def main():
     motionObj = MotionState()
-    ode_loop(motionObj)
+    t = threading.Thread(target = ode_loop, args=(motionObj,))
+    t.start()
 
 
 
