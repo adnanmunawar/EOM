@@ -14,6 +14,11 @@ class MotionState():
         self.pos_array = []
         self.vel_array = []
         self.t_array = []
+        self.lock = threading.Lock()
+        self._plot_setup = False
+        self.axesp = []
+        self.axesv = []
+        self._sim_finished = False
 
     def get_position(self):
         return self.position
@@ -31,71 +36,89 @@ class MotionState():
         self.position = p
         self.pos_array.append(p)
 
+    def plot_setup(self):
+        self._plot_setup = True
+        self.axesp, = plt.plot([], [], label='Position')
+        self.axesv, = plt.plot([], [], label='Velocity')
+        plt.grid(True)
+        plt.axis([-1, 100, -15, 15])
+        plt.legend([self.axesp, self.axesv], ['Position', 'Velocity'])
+
     def plot_motion(self):
-        pos_axes, = plt.plot(self.t_array, self.pos_array, label='Position')
-        vel_axes, = plt.plot(self.t_array, self.vel_array, label='Velocity')
-        plt.grid()
-        plt.legend([pos_axes, vel_axes], ['Position', 'Velocity'])
-        plt.show()
+        if not self._plot_setup:
+            self.plot_setup()
+
+        # plt.plot(self.t_array, self.pos_array)
+        # plt.plot(self.t_array, self.vel_array)
+        self.axesp.set_xdata(self.t_array)
+        self.axesp.set_ydata(self.pos_array)
+        self.axesv.set_xdata(self.t_array)
+        self.axesv.set_ydata(self.vel_array)
+
+        plt.draw()
+        plt.pause(0.001)
 
     def print_motion(self):
         print 'P = ', self.position, 'V = ', self.velocity, 'at time:', self.time
+
+    def set_sim_finished(self, bool):
+        self._sim_finished = bool
+
+    def is_sim_finished(self):
+        return self._sim_finished
 
 Fmax = 1
 m = 0.1
 B = 0.1
 
 
-def my_ode(y, t, ft, Fext, motionObj, sleet_time):
+def my_ode(y, t, ft, Fext, motionObj, sleep_time):
     F = np.interp(t, ft, Fext)
     motionObj.set_position(y[0],t)
     motionObj.set_velocity(y[1],t)
     dy = [0, 0]
     dy[0] = y[1]
     dy[1] = (F - B * y[1])/m
-    # SysTime.sleep(sleet_time)
+    SysTime.sleep(sleep_time)
     return dy
 
 
 def ode_loop(motionObj):
     t0 = 0.0
-    dt = 20.0
-    total_time = 100.0
+    dt = 10.0
+    total_time = 5*dt
     tf = t0 + dt
-    itrs = 50
+    itrs = 500
     f_res = 10
     y0 = [0, 0]
     tspan = np.linspace(t0, tf, itrs)
     ft = np.linspace(t0, tf, f_res)
     Fext = np.zeros(f_res)
-    Fext[0] = Fmax
+    Fext[1] =  Fmax
     Fext[5] = -Fmax
-    sleep_time = (tspan[1] - tspan[0]) / itrs
+    sleep_time = (tf - t0) / itrs
 
     while tf <= total_time:
-        # print 'Current time span t0: ', t0, ' to tf: ', tf
+        print 'Current time span t0: ', t0, ' to tf: ', tf
         y = odeint(my_ode, y0, tspan, args=(ft, Fext, motionObj, sleep_time))
         t0 = tf
         tf += dt
         tspan = np.linspace(t0, tf, itrs)
         ft = np.linspace(t0, tf, f_res)
-        sleep_time = (tspan[1] - tspan[0]) / itrs
+        sleep_time = (tf - t0) / itrs
         y0 = y[-1]
-
-    motionObj.plot_motion()
+    print 'Sim Finished, setting sim_finished to True'
+    motionObj.set_sim_finished(True)
 
 
 def main():
     motionObj = MotionState()
-    ode_loop(motionObj)
-    # t = threading.Thread(target = ode_loop, args=(motionObj,))
-    # t.start()
+    t = threading.Thread(target = ode_loop, args=(motionObj,))
+    t.start()
 
-    # cnt = 0
-    # while cnt < 100:
-    #     motionObj.print_motion()
-    #     cnt += 1
-    #     SysTime.sleep(0.1)
+    cnt = 0
+    while not motionObj.is_sim_finished():
+        motionObj.plot_motion()
 
 if __name__ == '__main__':
     main()
