@@ -79,7 +79,9 @@ def my_ode(y, t, ft, Fext, motionObj, sleep_time):
     dy = [0, 0]
     dy[0] = y[1]
     dy[1] = (F - B * y[1])/m
-    SysTime.sleep(sleep_time)
+    sleep_till = SysTime.time() + sleep_time
+    while (SysTime.time() < sleep_till):
+        d = 0 # Do Nothing
     return dy
 
 
