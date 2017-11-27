@@ -8,7 +8,7 @@ def data_gen(t=0):
     while cnt < 1000:
         cnt += 1
         t += 0.01
-        yield 10*math.sin(t), 0
+        yield 10*math.sin(t), 0.7*math.cos(5*t)
 
 def init():
     plt.axis('equal')
@@ -28,19 +28,26 @@ fig, ax = plt.subplots()
 ax.grid(True)
 prev_t = 0
 cur_t = 0
+prev_y = 0
+cur_y = 0
+
 xdata, ydata = [], []
 
 def run(data):
-    global prev_t, cur_t
+    global prev_t, cur_t, prev_y, cur_y
     # update the data
     t, y = data
     prev_t = cur_t
+    prev_y = cur_y
     cur_t = t
+    cur_y = y
     xdata.append(t)
     ydata.append(y)
     xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
 
     dt = cur_t - prev_t
+    dy = cur_y - prev_y
     if dt > 0:
         if t >= (((xmax + xmin)/2) + 1):
             xmin += dt
@@ -49,11 +56,22 @@ def run(data):
         if t <= (((xmax + xmin)/2) - 1):
             xmin += dt
             xmax += dt
+    if dy > 0:
+        if y >= (((ymax + ymin)/2) + 1):
+            ymin += dy
+            ymax += dy
+    elif dy < 0:
+        if y <= (((ymax + ymin)/2) - 1):
+            ymin += dy
+            ymax += dy
+
+    ax.set_ylim(ymin, ymax)
     ax.set_xlim(xmin, xmax)
     ax.figure.canvas.draw()
 
 
     line.set_xy([t,y])
+    line.set_color('m')
     cir.center = t, y+0.5
     return line,
 
