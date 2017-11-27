@@ -1,13 +1,14 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import math
 
 
 def data_gen(t=0):
     cnt = 0
     while cnt < 1000:
         cnt += 1
-        t += 0.1
-        yield t, 0
+        t += 0.01
+        yield 10*math.sin(t), 0
 
 def init():
     plt.axis('equal')
@@ -40,12 +41,17 @@ def run(data):
     xmin, xmax = ax.get_xlim()
 
     dt = cur_t - prev_t
-    print 'T: ', t, ' Xmin: ', xmin, ' Xmax:', xmax
-    if t >= (xmax + xmin)/2:
-        xmin += dt
-        xmax += dt
-        ax.set_xlim(xmin, xmax)
-        ax.figure.canvas.draw()
+    if dt > 0:
+        if t >= (((xmax + xmin)/2) + 1):
+            xmin += dt
+            xmax += dt
+    elif dt < 0:
+        if t <= (((xmax + xmin)/2) - 1):
+            xmin += dt
+            xmax += dt
+    ax.set_xlim(xmin, xmax)
+    ax.figure.canvas.draw()
+
 
     line.set_xy([t,y])
     cir.center = t, y+0.5
