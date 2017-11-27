@@ -13,6 +13,8 @@ class PlotPoly():
         self.prev_y = 0
         self.cur_y = 0
         self.xdata, self.ydata = [], []
+        self._data_gen_fcn_set = False
+        self.data_gen_fcn = self.data_gen
 
     def setup(self):
         plt.axis('equal')
@@ -32,6 +34,10 @@ class PlotPoly():
             cnt += 1
             t += 0.01
             yield 10 * math.sin(t), 1 * math.cos(5 * t)
+
+    def set_data_gen_fcn(self, fcn):
+        self._data_gen_fcn_set = True
+        self.data_gen_fcn = fcn
 
     def run(self, data):
         # update the data
@@ -82,7 +88,7 @@ class PlotPoly():
         self.ax.figure.canvas.draw()
 
     def create_plot(self):
-        ani = animation.FuncAnimation(self.fig, self.run, self.data_gen, blit=False, interval=10,
+        ani = animation.FuncAnimation(self.fig, self.run, self.data_gen_fcn, blit=False, interval=10,
                                       repeat=False, init_func=self.setup)
         plt.show()
 
