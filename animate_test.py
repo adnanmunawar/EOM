@@ -12,6 +12,8 @@ class PlotPoly():
         self.cur_t = 0
         self.prev_y = 0
         self.cur_y = 0
+        self.x_axes_width = 3.0
+        self.y_axes_width = 3.0
         self.xdata, self.ydata = [], []
         self._data_gen_fcn_set = False
         self.data_gen_fcn = self.data_gen
@@ -36,6 +38,7 @@ class PlotPoly():
             yield 10 * math.sin(t), 1 * math.cos(5 * t)
 
     def set_data_gen_fcn(self, fcn):
+        print 'Setting Data Gen Function'
         self._data_gen_fcn_set = True
         self.data_gen_fcn = fcn
 
@@ -60,28 +63,28 @@ class PlotPoly():
 
         dt = self.cur_t - self.prev_t
         dy = self.cur_y - self.prev_y
-        x_center = (xmax + xmin) / 2
-        y_center = (ymax + ymin) / 2
+        x_center = (xmax + xmin) / 2.0
+        y_center = (ymax + ymin) / 2.0
 
         if t < xmin or t > xmax:
-            xmin = t - ((xmax - xmin) / 2)
-            xmax = t + ((xmax - xmin) / 2)
+            xmin = t - ((xmax - xmin) / 2.0)
+            xmax = t + ((xmax - xmin) / 2.0)
         if dt > 0 and t >= (x_center + 1):
             xmin += dt
-            xmax += dt
+            xmax = xmin + self.x_axes_width
         if dt < 0 and t <= (x_center - 1):
             xmin += dt
-            xmax += dt
+            xmax = xmin + self.x_axes_width
 
         if y < ymin or y > ymax:
-            ymin = y - ((ymax - ymin) / 2)
-            ymax = y + ((ymax - ymin) / 2)
+            ymin = y - ((ymax - ymin) / 2.0)
+            ymax = y + ((ymax - ymin) / 2.0)
         elif dy > 0 and y >= (y_center + 0.7):
             ymin += dy
-            ymax += dy
+            ymax = ymin + self.y_axes_width
         elif dy < 0 and y <= (y_center - 0.7):
             ymin += dy
-            ymax += dy
+            ymax = ymin + self.y_axes_width
 
         self.ax.set_ylim(ymin, ymax)
         self.ax.set_xlim(xmin, xmax)
@@ -91,6 +94,6 @@ class PlotPoly():
         ani = animation.FuncAnimation(self.fig, self.run, self.data_gen_fcn, blit=False, interval=10,
                                       repeat=False, init_func=self.setup)
         plt.show()
+        # for i in range(1,500):
+        #     print self.data_gen_fcn()
 
-obj = PlotPoly()
-obj.create_plot()

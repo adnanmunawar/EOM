@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import threading
 import time as SysTime
+from animate_test import PlotPoly
 
 
 
@@ -20,11 +21,14 @@ class MotionState():
         self.axesv = []
         self._sim_finished = False
 
-    def get_position(self):
-        return self.position
+    def get_last_position(self):
+        while self.pos_array.__len__() > 0 and not self._sim_finished:
+            x = self.pos_array[-1]
+            y = 0.0
+            yield x, y
 
-    def get_velocity(self):
-        return self.velocity
+    def get_last_velocity(self):
+        return self.t_array[-1], self.vel_array[-1]
 
     def set_velocity(self, v,t):
         self.velocity = v
@@ -32,7 +36,7 @@ class MotionState():
         self.vel_array.append(v)
         self.t_array.append(t)
 
-    def set_position(self, p,t):
+    def set_position(self, p):
         self.position = p
         self.pos_array.append(p)
 
@@ -74,8 +78,8 @@ B = 0.1
 
 def my_ode(y, t, ft, Fext, motionObj, sleep_time):
     F = np.interp(t, ft, Fext)
-    motionObj.set_position(y[0],t)
-    motionObj.set_velocity(y[1],t)
+    motionObj.set_position(y[0])
+    motionObj.set_velocity(y[1], t)
     dy = [0, 0]
     dy[0] = y[1]
     dy[1] = (F - B * y[1])/m
@@ -115,12 +119,14 @@ def ode_loop(motionObj):
 
 def main():
     motionObj = MotionState()
+    polyObj = PlotPoly()
+    polyObj.set_data_gen_fcn(motionObj.get_last_position())
     t = threading.Thread(target = ode_loop, args=(motionObj,))
     t.start()
 
-    cnt = 0
-    while not motionObj.is_sim_finished():
-        motionObj.plot_motion()
+    # while not motionObj.is_sim_finished():
+    #     motionObj.plot_motion()
+    polyObj.create_plot()
 
 if __name__ == '__main__':
     main()
