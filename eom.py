@@ -32,6 +32,10 @@ class Obj():
         self._f_array_set = False
         self._compute_collision = False
         self.Col_obj = Collision()
+        self._sim_finished = False
+
+    def set_sim_finished(self, bool):
+        self._sim_finished = bool
 
     def dynamics(self):
         pass
@@ -87,7 +91,14 @@ class Obj():
         self.f_array.append(self.F)
         self.t_array.append(self.t)
 
+    def get_pos_last(self):
+        while self.d_array.__len__() > 0 and not self._sim_finished:
+            x = self.d_array[-1]
+            y = 0.0
+            yield x, y
+
     def plot_trajectory(self, data_type='Position'):
+        plt.figure()
         if data_type == 'Position':
             Y = [self.d_array]
         if data_type == 'Velocity':

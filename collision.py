@@ -4,7 +4,7 @@ import math
 class Collision():
     def __init__(self):
         self.F = 0
-        self.wx = 1
+        self.wx = 5
         self.K = 100
         self.epsilon = 0.001
         self.ForceCap = 50
